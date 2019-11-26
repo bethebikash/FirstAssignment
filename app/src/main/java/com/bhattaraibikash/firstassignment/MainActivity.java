@@ -19,7 +19,10 @@ public class MainActivity extends AppCompatActivity {
     Button btnCalculate;
     TextView tvResult;
 
-    public String roomType[] = {"Deluxe", "Presidential", "Premium"};
+    public String roomType[] = {"Deluxe", "Presidential", "Premium"}, result;
+
+    public int noOfRooms, noOfDays, price;
+    public double total, vat, grandTotal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         etNoOfChild = findViewById(R.id.etNoOfChild);
         etNoOfRoom = findViewById(R.id.etNoOfRoom);
         btnCalculate = findViewById(R.id.btnCalculate);
+        tvResult = findViewById(R.id.tvResult);
 
         etDateIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,6 +63,29 @@ public class MainActivity extends AppCompatActivity {
 
         spRoomType.setAdapter(adapterRoom);
 
+        btnCalculate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//              no of days
+                noOfDays = 5;
+                noOfRooms = Integer.parseInt(etNoOfRoom.getText()+"");
+                if(spRoomType.getSelectedItem() == "Deluxe"){
+                    price = 2000;
+                } else if(spRoomType.getSelectedItem() == "Premium"){
+                    price = 4000;
+                } else {
+                    price = 5000;
+                }
+
+                total = noOfDays * noOfRooms * price;
+                vat = 0.13 * total;
+                grandTotal = total+vat;
+                result = "Total : Rs."+total+"\nVAT(13%) : Rs."+vat+"\nGrand Total : Rs."+grandTotal;
+
+                tvResult.setText(result);
+            }
+        });
+
     }
 
     private void loadDatePicker(final String btnType) {
@@ -70,8 +97,7 @@ public class MainActivity extends AppCompatActivity {
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                month = month + 1;
-                String date = "Month/Day/Year: " + month + "/" + dayOfMonth + "/" + year;
+                String date = "Month/Day/Year: " + (month+1) + "/" + dayOfMonth + "/" + year;
 
                 if (btnType == "dateIn") {
                     etDateIn.setText(date);

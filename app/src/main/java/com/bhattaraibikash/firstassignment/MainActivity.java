@@ -12,6 +12,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -24,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnCalculate;
     TextView tvResult;
 
-    public String roomType[] = {"Deluxe", "Presidential", "Premium"}, result;
+    public String roomType[] = {"Deluxe  (Rs.2000)", "Premium  (Rs.4000)", "Presidential  (Rs.5000)"}, result;
 
     public int noOfRooms, noOfDays, price;
     public double total, vat, grandTotal;
@@ -54,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (etDateIn.getText().toString().isEmpty()) {
-                    etDateIn.setError("Please Choose Check-In Date!");
-                    return;
+                    etDateIn.setError("Please Choose Check-In Date first!");
+                    Toast.makeText(getApplicationContext(), "Please Choose Check-In Date first!!", Toast.LENGTH_SHORT).show();
                 } else {
                     loadDatePicker("dateOut");
                 }
@@ -76,11 +77,14 @@ public class MainActivity extends AppCompatActivity {
                     if (TextUtils.isEmpty(etDateIn.getText())) {
                         etDateIn.setError("Please Choose Check-In Date!");
 
+
                     } else if (TextUtils.isEmpty(etDateOut.getText())) {
                         etDateOut.setError("Please Choose Check-Out Date!");
+                        Toast.makeText(getApplicationContext(), "Please Choose Check-In Date!", Toast.LENGTH_SHORT).show();
 
                     } else if (TextUtils.isEmpty(spRoomType.getSelectedItem().toString())) {
                         etDateOut.setError("Please Choose Check-Out Date!");
+                        Toast.makeText(getApplicationContext(), "Please Choose Check-Out Date!", Toast.LENGTH_SHORT).show();
 
                     } else if (TextUtils.isEmpty(etNoOfAdult.getText())) {
                         etNoOfAdult.setError("Please enter Number of Adult!");
@@ -105,9 +109,9 @@ public class MainActivity extends AppCompatActivity {
 
                         noOfDays = Integer.parseInt(diffInDays + "");
                         noOfRooms = Integer.parseInt(etNoOfRoom.getText() + "");
-                        if (spRoomType.getSelectedItem() == "Deluxe") {
+                        if (spRoomType.getSelectedItem() == "Deluxe  (Rs.2000)") {
                             price = 2000;
-                        } else if (spRoomType.getSelectedItem() == "Premium") {
+                        } else if (spRoomType.getSelectedItem() == "Premium  (Rs.4000)") {
                             price = 4000;
                         } else {
                             price = 5000;
@@ -143,8 +147,25 @@ public class MainActivity extends AppCompatActivity {
                 if (btnType == "dateIn") {
                     etDateIn.setText(date);
                 } else {
+                    try {
+                        String startDate = etDateIn.getText().toString();
+                        String endDate = date;
 
-                    etDateOut.setText(date);
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("M/d/yyyy");
+                        Date sDate = simpleDateFormat.parse(startDate);
+                        Date eDate = simpleDateFormat.parse(endDate);
+
+                        if(eDate.after(sDate)){
+                            etDateOut.setText(date);
+                        } else {
+                            etDateOut.setError("Check-Out Date should be greater than Check-In Date!");
+                            Toast.makeText(getApplicationContext(), "Check-Out Date should be greater than Check-In Date!", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception ex) {
+
+                        ex.printStackTrace();
+                    }
+
                 }
             }
         }, year, month, day);

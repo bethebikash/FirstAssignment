@@ -1,8 +1,10 @@
 package com.bhattaraibikash.firstassignment;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -10,7 +12,10 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,8 +53,9 @@ public class MainActivity extends AppCompatActivity {
         etDateOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (etDateIn.getText().toString().isEmpty()){
+                if (etDateIn.getText().toString().isEmpty()) {
                     etDateIn.setError("Please Choose Check-In Date!");
+                    return;
                 } else {
                     loadDatePicker("dateOut");
                 }
@@ -66,23 +72,58 @@ public class MainActivity extends AppCompatActivity {
         btnCalculate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//              no of days
-                noOfDays = 5;
-                noOfRooms = Integer.parseInt(etNoOfRoom.getText()+"");
-                if(spRoomType.getSelectedItem() == "Deluxe"){
-                    price = 2000;
-                } else if(spRoomType.getSelectedItem() == "Premium"){
-                    price = 4000;
-                } else {
-                    price = 5000;
+                try {
+                    if (TextUtils.isEmpty(etDateIn.getText())) {
+                        etDateIn.setError("Please Choose Check-In Date!");
+
+                    } else if (TextUtils.isEmpty(etDateOut.getText())) {
+                        etDateOut.setError("Please Choose Check-Out Date!");
+
+                    } else if (TextUtils.isEmpty(spRoomType.getSelectedItem().toString())) {
+                        etDateOut.setError("Please Choose Check-Out Date!");
+
+                    } else if (TextUtils.isEmpty(etNoOfAdult.getText())) {
+                        etNoOfAdult.setError("Please enter Number of Adult!");
+
+                    } else if (TextUtils.isEmpty(etNoOfChild.getText())) {
+                        etNoOfChild.setError("Please enter Number of Child!");
+
+                    } else if (TextUtils.isEmpty(etNoOfRoom.getText())) {
+                        etNoOfRoom.setError("Please enter Number of Rooms!");
+
+                    } else {
+
+//                        Calculating Number of Days
+                        String dateIn = etDateIn.getText().toString();
+                        String dateOut = etDateOut.getText().toString();
+
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("M/d/yyyy");
+                        Date in = simpleDateFormat.parse(dateIn);
+                        Date out = simpleDateFormat.parse(dateOut);
+                        long diff = Math.abs(in.getTime() - out.getTime());
+                        long diffInDays = diff / (24 * 60 * 60 * 1000);
+
+                        noOfDays = Integer.parseInt(diffInDays + "");
+                        noOfRooms = Integer.parseInt(etNoOfRoom.getText() + "");
+                        if (spRoomType.getSelectedItem() == "Deluxe") {
+                            price = 2000;
+                        } else if (spRoomType.getSelectedItem() == "Premium") {
+                            price = 4000;
+                        } else {
+                            price = 5000;
+                        }
+
+                        total = noOfDays * noOfRooms * price;
+                        vat = 0.13 * total;
+                        grandTotal = total + vat;
+                        result = "Total : Rs." + total + "\nVAT(13%) : Rs." + vat + "\nGrand Total : Rs." + grandTotal;
+
+                        tvResult.setText(result);
+                    }
+                } catch (Exception ex) {
+
+                    ex.printStackTrace();
                 }
-
-                total = noOfDays * noOfRooms * price;
-                vat = 0.13 * total;
-                grandTotal = total+vat;
-                result = "Total : Rs."+total+"\nVAT(13%) : Rs."+vat+"\nGrand Total : Rs."+grandTotal;
-
-                tvResult.setText(result);
             }
         });
 
@@ -97,11 +138,12 @@ public class MainActivity extends AppCompatActivity {
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                String date = "Month/Day/Year: " + (month+1) + "/" + dayOfMonth + "/" + year;
+                String date = (month + 1) + "/" + dayOfMonth + "/" + year;
 
                 if (btnType == "dateIn") {
                     etDateIn.setText(date);
                 } else {
+
                     etDateOut.setText(date);
                 }
             }
